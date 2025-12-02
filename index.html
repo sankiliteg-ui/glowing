@@ -1,0 +1,327 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ANNU's Glow Game</title>
+    <style>
+        /* --- CSS Styles --- */
+        :root {
+            --primary-glow: rgba(255, 105, 180, 0.8); /* Hot pink */
+            --secondary-glow: rgba(0, 255, 255, 0.8); /* Cyan */
+            --gold-glow: rgba(255, 215, 0, 0.8); /* Gold */
+            --bg-color: #0a0a12;
+        }
+
+        body {
+            margin: 0;
+            padding: 0;
+            background-color: var(--bg-color);
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            color: white;
+            user-select: none;
+        }
+
+        #game-container {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            background: radial-gradient(circle at center, #1a1a2e 0%, #000000 100%);
+        }
+
+        /* Score Board */
+        #score-board {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            font-size: 20px;
+            font-weight: bold;
+            color: #ccc;
+            z-index: 10;
+            border: 1px solid #333;
+            padding: 10px 20px;
+            border-radius: 20px;
+            background: rgba(0,0,0,0.5);
+        }
+
+        #score {
+            color: var(--gold-glow);
+            font-size: 24px;
+        }
+
+        /* Main Centerpiece */
+        .centerpiece {
+            text-align: center;
+            z-index: 5;
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        /* ANNU's Photo */
+        .profile-img {
+            width: 220px;
+            height: 220px;
+            object-fit: cover;
+            border-radius: 50%;
+            border: 4px solid rgba(255, 255, 255, 0.3);
+            animation: pulseGlow 3s infinite alternate;
+            transition: transform 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        /* ANNU's Name */
+        .profile-name {
+            font-size: 3.5em;
+            margin: 10px 0 5px 0;
+            letter-spacing: 5px;
+            font-weight: 900;
+            text-transform: uppercase;
+            color: transparent;
+            -webkit-text-stroke: 2px white;
+            text-shadow: 0 0 15px var(--primary-glow);
+            transition: all 0.3s ease;
+        }
+
+        /* Instruction Text Styles */
+        .instruction-box {
+            margin-top: 15px;
+            background: rgba(255, 255, 255, 0.1);
+            padding: 10px 20px;
+            border-radius: 30px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            animation: floatUp 3s infinite ease-in-out;
+        }
+
+        .instruction-text {
+            font-size: 1.1em;
+            color: #00ffff;
+            text-align: center;
+            margin: 0;
+            font-weight: 500;
+            text-shadow: 0 0 5px rgba(0, 255, 255, 0.5);
+        }
+        
+        .instruction-sub {
+            font-size: 0.9em;
+            color: #ddd;
+            display: block;
+            margin-top: 5px;
+        }
+
+        /* --- Animations --- */
+        @keyframes pulseGlow {
+            0% { box-shadow: 0 0 15px var(--primary-glow); border-color: rgba(255,255,255,0.3); }
+            100% { box-shadow: 0 0 30px var(--primary-glow), 0 0 50px var(--secondary-glow); border-color: rgba(255,255,255,0.8); }
+        }
+
+        @keyframes floatUp {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-5px); }
+        }
+
+        /* --- Power-up Actions --- */
+        .power-up-active .profile-img {
+            transform: scale(1.15);
+            border-color: #fff;
+            box-shadow: 0 0 60px var(--gold-glow), 0 0 100px var(--primary-glow), inset 0 0 20px white !important;
+        }
+        
+        .power-up-active .profile-name {
+            color: white;
+            text-shadow: 0 0 30px var(--gold-glow), 0 0 60px var(--secondary-glow) !important;
+            -webkit-text-stroke: 0px;
+        }
+
+        /* --- Flying Orbs --- */
+        .light-orb {
+            position: absolute;
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            cursor: pointer;
+            background: white;
+            z-index: 20;
+            animation: moveAround 5s linear infinite;
+            border: 2px solid rgba(255,255,255,0.8); 
+        }
+
+        .light-orb:hover { transform: scale(1.1); }
+
+        /* Click ripple effect */
+        .pop-effect {
+            position: absolute;
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            border: 2px solid white;
+            animation: ripple 0.5s ease-out forwards;
+            pointer-events: none;
+        }
+
+        @keyframes ripple {
+            0% { transform: scale(0.5); opacity: 1; }
+            100% { transform: scale(2); opacity: 0; }
+        }
+
+        /* --- NEW: Compliment Text Style --- */
+        .compliment-pop {
+            position: absolute;
+            font-size: 24px;
+            font-weight: 800;
+            color: #FFD700; /* Default Gold */
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.5), 0 0 10px currentColor;
+            pointer-events: none; /* Click through it */
+            z-index: 30;
+            white-space: nowrap;
+            animation: popAndFloat 1.5s ease-out forwards;
+        }
+
+        @keyframes popAndFloat {
+            0% { opacity: 0; transform: translate(-50%, -50%) scale(0.5); }
+            20% { opacity: 1; transform: translate(-50%, -50%) scale(1.2); }
+            100% { opacity: 0; transform: translate(-50%, -150%) scale(1); }
+        }
+
+    </style>
+</head>
+<body>
+
+    <div id="game-container">
+        <div id="score-board">✨ Glow Power: <span id="score">0</span></div>
+
+        <div class="centerpiece" id="main-centerpiece">
+            <img src="ann.jpg" alt="Annu DP" class="profile-img" id="annu-img">
+            <h1 class="profile-name">ANNU</h1>
+
+            <div class="instruction-box">
+                <span class="instruction-text">👆 Tap the Flying Lights!</span>
+                <span class="instruction-sub">Udti hui lights ko touch karo taaki <b>ANNU Glow kare!</b></span>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let score = 0;
+        const scoreDisplay = document.getElementById('score');
+        const gameContainer = document.getElementById('game-container');
+        const centerpiece = document.getElementById('main-centerpiece');
+        
+        const colors = ['#FF1493', '#00FFFF', '#FFD700', '#ADFF2F', '#FF4500'];
+
+        // --- NEW: Compliments List ---
+        const complimentList = [
+            "✨Angel✨",
+            "💖Pretty Girl💖",
+            "😻Cute Girl😻",
+            "👑Queen👑",
+            "🌟Superstar🌟",
+            "🥰Lovely🥰",
+            "🦋Beautiful🦋",
+            "🔥Stunning🔥"
+        ];
+
+        function triggerCenterGlow() {
+            centerpiece.classList.add('power-up-active');
+            setTimeout(() => {
+                centerpiece.classList.remove('power-up-active');
+            }, 600);
+        }
+
+        function createPopEffect(x, y, color) {
+            const pop = document.createElement('div');
+            pop.classList.add('pop-effect');
+            pop.style.left = (x - 50) + 'px';
+            pop.style.top = (y - 50) + 'px';
+            pop.style.borderColor = color;
+            pop.style.boxShadow = `0 0 20px ${color}`;
+            gameContainer.appendChild(pop);
+            setTimeout(() => pop.remove(), 500);
+        }
+
+        // --- NEW: Function to show compliment text ---
+        function showCompliment(x, y) {
+            const textDiv = document.createElement('div');
+            textDiv.classList.add('compliment-pop');
+            
+            // Pick random compliment
+            const randomText = complimentList[Math.floor(Math.random() * complimentList.length)];
+            textDiv.textContent = randomText;
+
+            // Pick random glowing color for text
+            const randomColor = colors[Math.floor(Math.random() * colors.length)];
+            textDiv.style.color = randomColor;
+
+            // Position where clicked
+            textDiv.style.left = x + 'px';
+            textDiv.style.top = y + 'px';
+
+            gameContainer.appendChild(textDiv);
+
+            // Remove after animation ends (1.5s)
+            setTimeout(() => {
+                textDiv.remove();
+            }, 1500);
+        }
+
+
+        function createOrb() {
+            const orb = document.createElement('div');
+            orb.classList.add('light-orb');
+
+            const color = colors[Math.floor(Math.random() * colors.length)];
+            orb.style.background = `radial-gradient(circle at 30% 30%, #fff, ${color})`;
+            orb.style.boxShadow = `0 0 20px ${color}, 0 0 40px ${color}`;
+
+            const startX = Math.random() * (window.innerWidth - 100) + 20;
+            const startY = Math.random() * (window.innerHeight - 100) + 20;
+            orb.style.left = startX + 'px';
+            orb.style.top = startY + 'px';
+
+            const duration = 3 + Math.random() * 4;
+            orb.style.transition = `top ${duration}s ease-in-out, left ${duration}s ease-in-out`;
+
+            const moveInterval = setInterval(() => {
+                const newX = Math.random() * (window.innerWidth - 80);
+                const newY = Math.random() * (window.innerHeight - 80);
+                orb.style.left = newX + 'px';
+                orb.style.top = newY + 'px';
+            }, duration * 1000);
+
+            // CLICK EVENT
+            orb.addEventListener('click', (e) => {
+                clearInterval(moveInterval); // Stop moving when clicked
+                score += 100;
+                scoreDisplay.textContent = score;
+
+                triggerCenterGlow(); 
+                createPopEffect(e.clientX, e.clientY, color); 
+                
+                // --- NEW: Show Compliment Here ---
+                showCompliment(e.clientX, e.clientY);
+
+                orb.remove();
+                createOrb();
+            });
+
+            gameContainer.appendChild(orb);
+        }
+
+        // Start Game with 3 Orbs
+        createOrb();
+        setTimeout(createOrb, 1000);
+        setTimeout(createOrb, 2000);
+
+    </script>
+</body>
+</html>
